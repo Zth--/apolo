@@ -1,92 +1,86 @@
-// script.js
-
 const canvas = document.getElementById('glcanvas');
-const gl = canvas.getContext('webgl');
+const gl     = canvas.getContext('webgl');
+const video  = document.getElementById('video');
 
-// Resize canvas to full window size and update viewport
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  gl.viewport(0, 0, canvas.width, canvas.height);
+async function loadShader(type, url) {
+  const src = await fetch(url).then(r=>r.text());
+  const s   = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+    console.error(gl.getShaderInfoLog(s));
+  return s;
 }
 
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-// Get webcam video
-const video = document.getElementById('video');
-navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
-    video.srcObject = stream;
-    return video.play();
-  })
-  .catch(err => {
-    console.error('Error accessing webcam:', err);
-  });
-
-// Shader loader helper
-async function loadShader(type, url) {
-  const res = await fetch(url);
-  const src = await res.text();
-  const shader = gl.createShader(type);
-  gl.shaderSource(shader, src);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
-  }
-  return shader;
+function resize(resLoc) {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.uniform2f(resLoc, canvas.width, canvas.height);
 }
 
 async function init() {
-  const [vertexShader, fragmentShader] = await Promise.all([
-    loadShader(gl.VERTEX_SHADER, 'shaders/vertex.glsl'),
-    loadShader(gl.FRAGMENT_SHADER, 'shaders/fragment.glsl'),
+  const [vs, fs] = await Promise.all([
+    loadShader(gl.VERTEX_SHADER,   'shaders/vertex.glsl'),
+    loadShader(gl.FRAGMENT_SHADER, 'shaders/fragment.glsl')
   ]);
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
 
-  const program = gl.createProgram();
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error('Program link error:', gl.getProgramInfoLog(program));
-  }
-  gl.useProgram(program);
-
-  // Setup geometry (fullscreen quad)
-  const positionLocation = gl.getAttribLocation(program, 'position');
-  const positionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  // quad
+  const posLoc = gl.getAttribLocation(prog, 'position');
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-    -1, -1,  1, -1, -1,  1,
-     1, -1,  1,  1, -1,  1,
+    -1,-1,  1,-1,  -1,1,
+     1,-1,  1,1,   -1,1
   ]), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(positionLocation);
-  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(posLoc);
+  gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
-  // Texture uniform
-  const textureLocation = gl.getUniformLocation(program, 'u_texture');
-  gl.uniform1i(textureLocation, 0);
+  // uniforms
+  const u_texLoc = gl.getUniformLocation(prog, 'u_texture');
+  const u_resLoc = gl.getUniformLocation(prog, 'u_resolution');
+  const u_timeLoc= gl.getUniformLocation(prog, 'u_time');
+  gl.uniform1i(u_texLoc, 0);
 
-  // Create and configure texture
-  const videoTexture = gl.createTexture();
+  // webcam
+  navigator.mediaDevices.getUserMedia({ video:true })
+    .then(s=>{ video.srcObject = s; return video.play(); })
+    .catch(e=>console.error(e));
+  const vidTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, videoTexture);
+  gl.bindTexture(gl.TEXTURE_2D, vidTex);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+  window.addEventListener('resize', ()=>resize(u_resLoc));
+  resize(u_resLoc);
+
+  let start = performance.now();
   function render() {
+    const t = (performance.now() - start) * 0.001;
+    gl.uniform1f(u_timeLoc, t);
+
     if (video.readyState >= video.HAVE_CURRENT_DATA) {
-      gl.bindTexture(gl.TEXTURE_2D, videoTexture);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
+      gl.bindTexture(gl.TEXTURE_2D, vidTex);
+      gl.texImage2D(
+        gl.TEXTURE_2D,0,
+        gl.RGB,gl.RGB,
+        gl.UNSIGNED_BYTE,
+        video
+      );
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
     requestAnimationFrame(render);
   }
-
   render();
 }
 
 init();
-
