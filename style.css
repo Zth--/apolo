@@ -1,0 +1,359 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+    --bg: #0a0a0a;
+    --fg: #c9ad6a;
+    /* Amber/gold like old terminals */
+    --dim: #7a6f4d;
+    --accent: #ffd700;
+    /* Gold highlight */
+    --border: #5a5340;
+    --font-mono: 'IBM Plex Mono', 'Consolas', 'Monaco', monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body,
+html {
+    margin: 0;
+    height: 100%;
+    font-family: var(--font-mono);
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.4;
+    overflow-x: hidden;
+    cursor: default;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 2px rgba(201, 173, 106, 0.5);
+}
+
+#dither-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    background: transparent;
+}
+
+/* Scanline effect - subtle for roguelike */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+    background-size: 100% 2px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.4;
+}
+
+#bg-gems {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.frame {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header - Roguelike style */
+.masthead {
+    border-bottom: 2px solid var(--border);
+    border-top: 2px solid var(--border);
+    padding: 15px 0;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    background: rgba(121, 111, 77, 0.05);
+}
+
+.stamp {
+    font-size: 18px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    font-size: 22px;
+    color: var(--accent);
+}
+
+/* Main Content - Dungeon log style */
+.garden {
+    border: 2px double var(--border);
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.85);
+    position: relative;
+    margin-bottom: 40px;
+    box-shadow: inset 0 0 20px rgba(121, 111, 77, 0.1);
+}
+
+.garden::before {
+    content: "[ DUNGEON LOG ]";
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--bg);
+    padding: 0 10px;
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: 2px;
+}
+
+.plot {
+    position: relative;
+    font-size: 22px;
+    line-height: 1.3;
+}
+
+pre {
+    margin: 0;
+    color: var(--dim);
+    opacity: 0.5;
+    font-size: 18px;
+}
+
+.post-link {
+    display: block;
+    color: var(--fg);
+    text-decoration: none;
+    margin: 10px 0;
+    padding-left: 15px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.post-link:hover {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    padding-left: 20px;
+    background: rgba(255, 215, 0, 0.08);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.legend {
+    margin-top: 20px;
+    font-size: 18px;
+    color: var(--dim);
+    border-top: 1px dashed var(--border);
+    padding-top: 10px;
+}
+
+.whisper {
+    margin-top: auto;
+    text-align: center;
+    font-size: 16px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    opacity: 0.7;
+}
+
+/* ASCII Artifacts - sparse floating symbols */
+.ascii-object {
+    position: absolute;
+    left: var(--x);
+    top: 0;
+    color: var(--c1);
+    opacity: 0.7;
+    animation: drift var(--d, 30s) linear infinite;
+    animation-delay: var(--delay, 0s);
+    font-family: 'Courier New', 'Courier', monospace;
+    font-size: var(--s, 24px);
+    line-height: 1.1;
+    white-space: pre;
+    pointer-events: none;
+    text-shadow: 0 0 8px currentColor, 0 0 20px rgba(255, 215, 0, 0.3);
+    letter-spacing: 0;
+    word-spacing: 0;
+    font-variant-ligatures: none;
+    text-rendering: geometricPrecision;
+}
+
+@keyframes drift {
+    0% {
+        transform: translate(-50%, -15vh) rotate(-2deg);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 0.7;
+    }
+
+    85% {
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translate(-50%, 115vh) rotate(2deg);
+        opacity: 0;
+    }
+}
+
+/* Typing Effect Cursor */
+.typing-cursor::after {
+    content: '█';
+    animation: blink 1s step-end infinite;
+    color: var(--accent);
+    margin-left: 4px;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+.hidden-text {
+    visibility: hidden;
+}
+
+/* Blog Post Specifics */
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: var(--dim);
+    text-decoration: none;
+    font-size: 20px;
+}
+
+.back-link:hover {
+    color: var(--accent);
+}
+
+.blog-content {
+    max-width: 700px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.blog-content h1 {
+    color: var(--accent);
+    margin-top: 0;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 10px;
+}
+
+.blog-content p {
+    margin-bottom: 1.5em;
+}
+
+/* Encrypted Entry Styles */
+.locked-container {
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.lock-icon {
+    font-size: 32px;
+    color: var(--dim);
+    margin-bottom: 10px;
+    display: block;
+}
+
+.lock-warning {
+    color: #ff3333;
+    font-size: 20px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.lock-hint {
+    color: var(--dim);
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-style: normal;
+}
+
+.lock-input-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.lock-input {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    padding: 8px;
+    font-family: var(--font-mono);
+    font-size: 22px;
+    width: 240px;
+    text-align: center;
+    outline: none;
+}
+
+.lock-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.1);
+}
+
+.lock-btn {
+    background: var(--border);
+    color: var(--fg);
+    border: none;
+    padding: 8px 15px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 20px;
+}
+
+.lock-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+.error-msg {
+    color: #ff3333;
+    font-size: 20px;
+    margin-top: 10px;
+    height: 24px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.error-msg.visible {
+    opacity: 1;
+}
+
+.ciphertext {
+    color: var(--dim);
+    font-size: 16px;
+    line-height: 1.3;
+    word-break: break-all;
+    opacity: 0.5;
+    font-family: var(--font-mono);
+}
+
+/* Decoding Effect */
+.decoding-char {
+    display: inline-block;
+}

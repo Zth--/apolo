@@ -1,14 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <title>apolo</title>
-  <style>body, html, canvas { margin: 0; height: 100%; width: 100%; display: block; }</style>
+  <title>apolo sys</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <video id="video" autoplay playsinline style="display:none;"></video>
-  <canvas id="glcanvas"></canvas>
-  <script src="script.js" type="module"></script>
-</body>
-</html>
 
+<body>
+  <canvas id="dither-canvas" aria-hidden="true"></canvas>
+  <div id="bg-gems" aria-hidden="true"></div>
+
+  <main class="frame">
+    <header class="masthead">
+      <div class="stamp type-me" data-delay="0">nudo · un blog</div>
+      <div class="subtitle type-me" data-delay="200">adrifo</div>
+    </header>
+
+    <section class="garden" aria-label="ascii garden of posts">
+      <div class="plot">
+        <div style="position: relative; z-index: 1;">
+          <a class="post-link type-me" data-delay="500" href="blog/entry-1.html">[01] :: bienvenidos al pre-apocalipsis</a>
+        </div>
+      </div>
+      <div class="legend type-me" data-delay="500">$ choose your path...</div>
+    </section>
+
+    <footer class="whisper type-me" data-delay="3000">fuerza, integridad, verdad.</footer>
+  </main>
+  <script src="script.js"></script>
+
+</body>
+
+</html>
