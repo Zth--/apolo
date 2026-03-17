@@ -1,41 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>static_void :: apolo</title>
-    <link rel="stylesheet" href="../style.css">
+  <meta charset="UTF-8">
+  <title>static_void :: apolo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
 </head>
-
 <body>
-    <div id="bg-gems" aria-hidden="true"></div>
+  <div class="page-wrapper">
+    <header class="sys-header">
+      <a href="../index.html" class="sys-back">← apolo.sys</a>
+      <div class="sys-right">
+        <span class="sys-status status-active">● TRANSMISSION RECEIVED</span>
+      </div>
+    </header>
 
-    <main class="frame">
-        <header class="masthead">
-            <div class="stamp">apolo / logs / 03</div>
-            <a href="../index.html" class="back-link">&lt; RETURN_ROOT</a>
-        </header>
-
-        <section class="garden">
-            <div class="blog-content">
-                <h1>static_void</h1>
-                <pre>
-void main() {
+    <main class="container">
+      <div class="entry-meta">ENTRY_003 · 11:58:22Z · 433.920 MHz</div>
+      <h1 class="entry-title">static_void</h1>
+      <div class="entry-body">
+        <pre>void main() {
   // nothing here
   // just empty space
-}
-        </pre>
-                <p>Sometimes I feel like a function that never gets called. Defined, compiled, optimized, but never
-                    executed. Sitting in memory, taking up space.</p>
-                <p>Is there a garbage collector for lost thoughts? A way to free up the heap of my mind? I try to
-                    `free()` the pointers to the past, but I get a segmentation fault every time.</p>
-                <p>Maybe I'm just a dangling reference.</p>
-            </div>
-        </section>
-
-        <footer class="whisper">end of file</footer>
+}</pre>
+        <p>Sometimes I feel like a function that never gets called. Defined, compiled, optimized, but never executed. Sitting in memory, taking up space.</p>
+        <p>Is there a garbage collector for lost thoughts? A way to free up the heap of my mind? I try to <code>free()</code> the pointers to the past, but I get a segmentation fault every time.</p>
+        <p>Maybe I'm just a dangling reference.</p>
+      </div>
     </main>
-    <script src="../script.js"></script>
-</body>
 
+    <footer class="sys-footer">FUERZA · INTEGRIDAD · VERDAD</footer>
+  </div>
+  <script src="../script.js"></script>
+</body>
 </html>

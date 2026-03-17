@@ -4,32 +4,98 @@
 <head>
   <meta charset="UTF-8" />
   <title>apolo sys</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <canvas id="dither-canvas" aria-hidden="true"></canvas>
-  <div id="bg-gems" aria-hidden="true"></div>
-
-  <main class="frame">
-    <header class="masthead">
-      <div class="stamp type-me" data-delay="0">nudo · un blog</div>
-      <div class="subtitle type-me" data-delay="200">adrifo</div>
+  <div class="page-wrapper">
+    <header class="sys-header">
+      <span class="sys-logo">APOLO.SYS</span>
+      <div class="sys-right">
+        <span class="sys-blog-name">NUDO · UN BLOG</span>
+        <span class="sys-clock" id="utc-clock">UTC --:--:--</span>
+        <span class="sys-status status-active">● NOMINAL</span>
+      </div>
     </header>
 
-    <section class="garden" aria-label="ascii garden of posts">
-      <div class="plot">
-        <div style="position: relative; z-index: 1;">
-          <a class="post-link type-me" data-delay="500" href="blog/entry-1.html">[01] :: bienvenidos al pre-apocalipsis</a>
+    <main class="container grid-bg">
+      <section class="hero">
+        <div class="hero-tag">N U D O · U N · B L O G</div>
+        <h1 class="hero-title type-me" data-delay="200">Apolo<span class="accent-dot">.</span></h1>
+        <div class="hero-sub type-me" data-delay="400">INCOMING TRANSMISSIONS</div>
+      </section>
+
+      <section class="signal-feed fade-in">
+
+        <a href="blog/entry-1.html" class="feed-entry">
+          <span class="feed-ts">14:32:07Z</span>
+          <div class="feed-content">
+            <div class="feed-title">// nudo</div>
+            <div class="feed-desc">pre-apocalipsis — thoughts before the break</div>
+            <div class="feed-status">
+              <span class="status-dot status-active">● received</span>
+              <span class="feed-freq">437.525 MHz</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="blog/entry-2.html" class="feed-entry">
+          <span class="feed-ts">13:17:44Z</span>
+          <div class="feed-content">
+            <div class="feed-title">// twelve-minute tones</div>
+            <div class="feed-desc">a sound from the vents that lasted exactly twelve minutes</div>
+            <div class="feed-status">
+              <span class="status-dot status-active">● received</span>
+              <span class="feed-freq">440.000 MHz</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="blog/entry-3.html" class="feed-entry">
+          <span class="feed-ts">11:58:22Z</span>
+          <div class="feed-content">
+            <div class="feed-title">// static_void</div>
+            <div class="feed-desc">a function that never gets called</div>
+            <div class="feed-status">
+              <span class="status-dot status-active">● received</span>
+              <span class="feed-freq">433.920 MHz</span>
+            </div>
+          </div>
+        </a>
+
+        <div class="feed-entry feed-locked">
+          <span class="feed-ts">??:??:??Z</span>
+          <div class="feed-content">
+            <div class="feed-title">// lock</div>
+            <div class="feed-desc">enc_data — [contents encrypted]</div>
+            <div class="feed-status">
+              <span class="status-dot status-locked">● locked</span>
+              <span class="feed-freq">auth required</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="legend type-me" data-delay="500">$ choose your path...</div>
-    </section>
 
-    <footer class="whisper type-me" data-delay="3000">fuerza, integridad, verdad.</footer>
-  </main>
+        <div class="feed-entry feed-ghost">
+          <span class="feed-ts">??:??:??Z</span>
+          <div class="feed-content">
+            <div class="feed-title">// [signal lost]</div>
+            <div class="feed-desc">awaiting transmission</div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <footer class="sys-footer">
+      FUERZA · INTEGRIDAD · VERDAD
+    </footer>
+  </div>
   <script src="script.js"></script>
-
 </body>
 
 </html>
