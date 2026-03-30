@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hackeando ao20 :: apolo</title>
+  <meta name="description" content="Cómo hackeé el Argentum Online 20 desde un script de estadísticas">
+  <meta property="og:title" content="hackeando ao20 — apolo">
+  <meta property="og:description" content="Cómo hackeé el Argentum Online 20 desde un script de estadísticas">
+  <meta property="og:type" content="article">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="sys-header">
+      <a href="../index.html" class="sys-back">← apolo.sys</a>
+    </header>
+
+    <main class="container">
+      <div class="entry-meta">2026-03-29</div>
+      <h1 class="entry-title">Hackeando AO20</h1>
+      <div class="entry-body">
+        <p>Es noviembre 2022. El creador del Argentum Online vuelve a la escena para lanzar AO20. Para los que no conozcan el AO, el juego es un MMORPG de fin de los 90s de mundo abierto donde hay que grindear mucho. Es de código abierto y tanto servidor como cliente están armados en Visual Basic 6. VB6 se deprecó en abril 2008, pero lo siguen usando para este juego al día de hoy.</p>
+        <p>De chico quise hackear este juego pero no lo logré. Tenía muchas ganas pero poco conocimiento técnico. Esta vez fue distinto. Para el fin de este hack pude spwanear una espada test en Ullathorpe (la ciudad principal) y se armó un lindo quilombo en la comunidad.</p>
+        <p>Lo cierto es que no fue un hack justificado, si no simplemente dedicación en encontrar descuidos de los demás.</p>
+
+        <h2>La preparación</h2>
+        <p>Al ser un juego de código abierto uno puede buscar vulnerabilidades en el juego mismo, tanto servidor como cliente. Ese fue mi primer intento. El problema es que están escritos en Visual Basic 6. Me pareció poca atractiva la idea de aprender un stack tan viejo que está completamente fuera de uso en el mundo real, así que después de poco tiempo busqué otros caminos.</p>
+        <p>Mirando los repos de github de la organización de AO20 me encontré que tenían varios servicios satélites corriendo para distintas funcionalidades de la página web. Uno que captó la atención fue "argentum20-estadisticas".</p>
+
+        <h2>argentum20-estadisticas</h2>
+        <p>Como su nombre lo indica este repo corre algunos reportes de estadísticas. Está escrito en php. Me llamó la atención <code>reports.php</code> que hacía lo siguiente:</p>
+<pre>&lt;?php
+  include('_reports.php');
+  $directory = '../' . $_GET['dir'];
+
+  if (isset($_GET['last']) &amp;&amp; $_GET['last'] == 'true') {
+    echo getLastReport($directory);
+    die();
+  }
+
+  foreach (listFolderFiles($directory) as $file) {
+    echo '&lt;a href="' . $file .'"&gt;'. $file .'&lt;/a&gt;&lt;br&gt;';
+  }
+?&gt;</pre>
+        <p>spot the vuln!!</p>
+        <p>El parámetro <code>dir</code> se concatena directo a la ruta sin sanitizar. Es un simple Path Traversal (LFI).</p>
+        <p>El parámetro <code>last=true</code> descargaba el último archivo modificado. Sin este parámetro, el script listaba directorios. Se usó para eludir restricciones y acceder a carpetas internas.</p>
+        <p>Entonces puedo hacer, por ejemplo: <code>GET a https://estadisticas.ao20.com.ar/produccion/reports.php?dir=../backups</code>, que esto me liste los files que hay en backups. Y despues puedo leer el contenido de cualquiera de estos files agregando el queryparam <code>last</code> en true.</p>
+        <p>Con este LFI en mano me puse a revisar todas las carpetas y files que había en este servidor... y así fue como encontré...</p>
+
+        <h2>Credenciales FTP expuestas</h2>
+        <p>Revisando directorios, llegué a la carpeta de backups. El servidor de estadísticas tenía permisos de lectura sobre carpetas que no debería. Ahí encontré logs de Jenkins y archivos de configuración que tenían credenciales FTP en texto plano:</p>
+<pre>ftp://estadisticas@ao20.com.ar:[REDACTED]@[REDACTED]</pre>
+        <p>O sea que ya no necesitaba el LFI para listar carpetas; tenía credenciales ftp. Y además esto me daba permisos de escritura. A esta altura ya podía subir un archivo malicioso php y tomar control del servidor, pero no me interesaba ese camino en particular.</p>
+
+        <h2>Backups y Account Takeover</h2>
+        <p>Descubrí que el servidor del juego (SQLite) se backupeaba cada 4 horas en <code>../backup/server-prod-bd</code>. Usando el LFI, bajaba el <code>result.gz</code> y tenía la base de datos completa de los jugadores en mi PC.</p>
+        <p>Acá me quede pensando qué podía hacer con un backup de la base de datos... y tuve una idea.</p>
+        <p>Qué tal si antes de que se escriba el backup yo pido recuperar la contraseña de una cuenta? El token de cambio de clave se tiene que guardar en la db... y yo podría después descargar este backup y usar ese token para cambiar la contraseña de cualquier cuenta.</p>
+        <p>Y eso fue lo que hice. Busqué alguna cuenta de nivel alto que no se usara desde hacía mucho tiempo y pedí prestada su cuenta.</p>
+        <p>Así que el flujo era:</p>
+<pre>1. Pedir un "Olvidé mi contraseña" en la web para la víctima.
+2. Esperar al siguiente cronjob de backup.
+3. Bajar la DB, buscar el token de recuperación recién generado.
+4. Usar ese token en la web y cambiar la clave.</pre>
+        <p>Con esto ya podía pedir prestadas cuentas y divertirme un rato, pero... nada más??</p>
+
+        <h2>Jenkins</h2>
+        <p>Siguiendo con la exploración de backups, encontré un <code>.zip</code> viejo de una instalación de Jenkins. Adentro estaba el <code>credentials.xml</code> con las llaves SSH de GitHub, pero estaban encriptadas.</p>
+        <p>Sin embargo, el mismo <code>.zip</code> tenía la master key del Jenkins. Con la llave maestra y los hashes, pude desencriptar la clave privada de SSH. Con eso cloné todos los repositorios privados de AO20: pymmo, gameapi y el engine. Ahora tenía el mapa completo de cómo funcionaba todo por detrás.</p>
+
+        <h2>El fin</h2>
+        <p>En el código fuente de gameapi encontré lo que buscaba: las credenciales de la base de datos MySQL de producción (<code>ao20_mercado</code>).</p>
+        <p>El sistema de mercado funcionaba con un job que leía una tabla de transacciones. Si insertabas un registro ahí, el juego te daba el item. Armé un script rápido para inyectar la compra:</p>
+<pre>mysql -u root -p[REDACTED] -h [REDACTED] -P 5103 ao20_mercado \
+  -e "insert into mao_item_transaction_status \
+  (user_id, status, created_at, item_id, item_quantity) \
+  values ('8304', 'CONFIRMED', NOW(), '1745', '1337');"</pre>
+        <p>Elegí el ID de la Espada Test (un item que obviamente no se consigue dentro del juego). Un minuto después, el item apareció en mi inventario. Se ejecutaba un DELETE sobre el registro instantes después de que el job del mercado lo procesara para no dejar rastros en el panel.</p>
+
+        <h2>Conclusión</h2>
+        <p>Le avisé a los devs en privado. Se lo tomaron bien, aunque les costó entender cómo alguien había llegado tan lejos desde un simple script de estadísticas.</p>
+      </div>
+    </main>
+
+    <nav class="entry-nav container">
+      <span></span>
+    </nav>
+
+    <footer class="sys-footer">FUERZA · INTEGRIDAD · VERDAD</footer>
+  </div>
+  <script src="../script.js"></script>
+</body>
+</html>
