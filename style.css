@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Mondwest';
+  src: url('fonts/PPMondwest-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg:             #020810;
   --surface:        #03070f;
@@ -10,13 +18,27 @@
 
   --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Mondwest', sans-serif;
+}
+
+#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  filter: blur(48px);
+  transform: scale(1.15);
+  opacity: 0.28;
+  z-index: 0;
+  pointer-events: none;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   height: 100%;
-  font-family: var(--font-mono);
+  font-family: var(--font-display);
   background: var(--bg);
   color: var(--text-mid);
   line-height: 1.6;
@@ -28,6 +50,8 @@ html, body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
 /* System Header (entry pages only) */
@@ -37,8 +61,8 @@ html, body {
   align-items: center;
   padding: 14px 32px;
   border-bottom: 1px solid var(--border);
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: 16px;
+  letter-spacing: 0.04em;
 }
 
 .sys-back {
@@ -63,9 +87,10 @@ html, body {
 }
 
 .hero-title {
+  font-family: var(--font-display);
   font-size: clamp(2.5rem, 6vw, 4rem);
   color: var(--text-hi);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 14px;
@@ -81,15 +106,15 @@ html, body {
 }
 
 .hero-author {
-  font-size: 11px;
+  font-size: 16px;
   color: var(--text-lo);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
 }
 
 .hero-link {
-  font-size: 11px;
+  font-size: 16px;
   color: var(--text-lo);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -119,35 +144,36 @@ a.feed-entry:hover {
 
 .feed-title {
   color: var(--accent);
-  font-size: 14px;
-  letter-spacing: 0.03em;
-  margin-bottom: 4px;
+  font-size: 20px;
+  letter-spacing: 0;
+  margin-bottom: 6px;
 }
 
 .feed-desc {
   color: var(--text-mid);
-  font-size: 13px;
-  margin-bottom: 6px;
+  font-size: 18px;
+  margin-bottom: 8px;
 }
 
 .feed-date {
-  font-size: 11px;
+  font-size: 15px;
   color: var(--text-lo);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
 }
 
 /* Entry Pages */
 .entry-meta {
-  font-size: 10px;
+  font-size: 15px;
   color: var(--text-lo);
-  letter-spacing: 0.15em;
+  letter-spacing: 0.05em;
   margin-bottom: 14px;
 }
 
 .entry-title {
+  font-family: var(--font-display);
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   color: var(--text-hi);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.02em;
   margin-bottom: 32px;
 }
@@ -162,13 +188,13 @@ a.feed-entry:hover {
 }
 
 .entry-body p         { margin-bottom: 1.4rem; }
-.entry-body h2        { color: var(--text-hi); font-family: var(--font-mono); font-size: 1rem; letter-spacing: 0.05em; margin: 2rem 0 1rem; }
+.entry-body h2        { color: var(--text-hi); font-family: var(--font-mono); font-size: 1.1rem; letter-spacing: 0.05em; margin: 2rem 0 1rem; }
 .entry-body em,
 .entry-body strong    { color: var(--text-hi); }
 .entry-body pre       { background: var(--surface); border: 1px solid var(--border); padding: 1rem; font-family: var(--font-mono); font-size: 13px; color: var(--text-mid); overflow-x: auto; margin-bottom: 1.4rem; }
 .entry-body code      { font-family: var(--font-mono); color: var(--accent); font-size: 0.9em; }
 .entry-body img       { max-width: 100%; border: 1px solid var(--border); margin-bottom: 1.4rem; display: block; }
-.entry-body .img-caption { font-family: var(--font-mono); font-size: 11px; color: var(--text-lo); margin-top: -1rem; margin-bottom: 1.4rem; letter-spacing: 0.03em; }
+.entry-body .img-caption { font-size: 15px; color: var(--text-lo); margin-top: -1rem; margin-bottom: 1.4rem; letter-spacing: 0.02em; }
 
 /* Entry Nav */
 .entry-nav {
@@ -177,8 +203,8 @@ a.feed-entry:hover {
   padding-top: 20px;
   padding-bottom: 32px;
   border-top: 1px solid var(--border);
-  font-size: 11px;
-  letter-spacing: 0.05em;
+  font-size: 16px;
+  letter-spacing: 0.02em;
   flex: 0;
 }
 
