@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>apolo sys</title>
-  <meta name="description" content="Apolo — a blog by adrifo. Technical and philosophical transmissions.">
+  <title>apolo</title>
+  <meta name="description" content="Apolo — blog de adrifo.">
   <meta property="og:title" content="Apolo">
-  <meta property="og:description" content="Technical and philosophical transmissions by adrifo.">
+  <meta property="og:description" content="Blog de adrifo.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://apolo.systems/">
+  <meta property="og:image" content="https://apolo.systems/og-image.png">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,42 +22,29 @@
 
 <body>
   <div class="page-wrapper">
-    <header class="sys-header">
-      <span class="sys-logo">APOLO.SYS</span>
-      <div class="sys-right">
-        <span class="sys-clock" id="utc-clock">UTC --:--:--</span>
-      </div>
-    </header>
 
     <main class="container">
       <section class="hero">
         <h1 class="hero-title type-me" data-delay="200">Apolo<span class="accent-dot">.</span></h1>
-        <div class="hero-author">by adrifo</div>
+        <nav class="hero-nav">
+          <span class="hero-author">por adrifo</span>
+          <a href="about.html" class="hero-link">sobre mí</a>
+        </nav>
       </section>
 
-      <section class="signal-feed fade-in">
+      <section class="feed fade-in">
 
         <a href="blog/entry-ao.html" class="feed-entry">
           <div class="feed-content">
-            <div class="feed-title">// hackeando ao20</div>
+            <div class="feed-title">hackeando ao20</div>
             <div class="feed-desc">cómo hackeé el argentum online desde un script de estadísticas</div>
             <span class="feed-date">2026-03-29</span>
           </div>
         </a>
 
-        <div class="feed-entry feed-locked">
-          <div class="feed-content">
-            <div class="feed-title">// wip</div>
-            <div class="feed-desc">[contents encrypted]</div>
-          </div>
-        </div>
-
       </section>
     </main>
 
-    <footer class="sys-footer">
-      FUERZA · INTEGRIDAD · VERDAD
-    </footer>
   </div>
   <script src="script.js"></script>
 </body>

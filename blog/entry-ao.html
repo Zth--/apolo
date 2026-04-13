@@ -8,6 +8,8 @@
   <meta property="og:title" content="hackeando ao20 — apolo">
   <meta property="og:description" content="Cómo hackeé el Argentum Online 20 desde un script de estadísticas">
   <meta property="og:type" content="article">
+  <meta property="og:url" content="https://apolo.systems/blog/entry-ao.html">
+  <meta property="og:image" content="https://apolo.systems/og-image.png">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +19,7 @@
 <body>
   <div class="page-wrapper">
     <header class="sys-header">
-      <a href="../index.html" class="sys-back">← apolo.sys</a>
+      <a href="../index.html" class="sys-back">← apolo</a>
     </header>
 
     <main class="container">
@@ -82,9 +84,20 @@
   (user_id, status, created_at, item_id, item_quantity) \
   values ('8304', 'CONFIRMED', NOW(), '1745', '1337');"</pre>
         <p>Elegí el ID de la Espada Test (un item que obviamente no se consigue dentro del juego). Un minuto después, el item apareció en mi inventario. Se ejecutaba un DELETE sobre el registro instantes después de que el job del mercado lo procesara para no dejar rastros en el panel.</p>
+        <img src="espada-test-ullathorpe.png" alt="Espada Test en Ullathorpe">
+        <p class="img-caption">la espada test tirada en ullathorpe</p>
+        <img src="espada-test-ullathorpe2.png" alt="Log del juego mostrando Espada Test-1">
+        <p class="img-caption">el log del juego registrando los drops</p>
+        <p>Y se armó quilombo.</p>
+        <img src="espada-test-ullathorpe3.png" alt="Screenshot en Discord de la espada in-game">
+        <p class="img-caption">la comunidad descubriendo la espada</p>
+        <img src="espada-test-discord.png" alt="MuffinPie reportando la espada en Discord">
+        <p class="img-caption">el rumor se esparce en discord</p>
 
         <h2>Conclusión</h2>
         <p>Le avisé a los devs en privado. Se lo tomaron bien, aunque les costó entender cómo alguien había llegado tan lejos desde un simple script de estadísticas.</p>
+        <img src="espada-discord2.png" alt="Comunicado oficial del staff de AO20">
+        <p class="img-caption">el comunicado oficial — "error humano"</p>
       </div>
     </main>
 
@@ -92,7 +105,6 @@
       <span></span>
     </nav>
 
-    <footer class="sys-footer">FUERZA · INTEGRIDAD · VERDAD</footer>
   </div>
   <script src="../script.js"></script>
 </body>
