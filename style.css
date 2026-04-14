@@ -29,7 +29,7 @@
   height: 100vh;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  opacity: 0.25;
+  opacity: 0.15;
   z-index: 0;
   pointer-events: none;
 }
@@ -124,20 +124,26 @@ html, body {
 .feed {
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
 .feed-entry {
   display: flex;
+  align-items: center;
   gap: 20px;
-  padding: 14px 0;
+  padding: 18px 20px;
   text-decoration: none;
-  transition: background 0.15s, padding-left 0.15s;
   color: inherit;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  cursor: pointer;
 }
 
 a.feed-entry:hover {
-  background: rgba(74, 158, 255, 0.03);
-  padding-left: 4px;
+  border-color: var(--accent);
+  background: rgba(74, 158, 255, 0.05);
+  transform: translateX(3px);
 }
 
 .feed-content { flex: 1; }
@@ -159,6 +165,18 @@ a.feed-entry:hover {
   font-size: 15px;
   color: var(--text-lo);
   letter-spacing: 0.02em;
+}
+
+.feed-arrow {
+  color: var(--text-lo);
+  font-size: 18px;
+  transition: color 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+a.feed-entry:hover .feed-arrow {
+  color: var(--accent);
+  transform: translateX(3px);
 }
 
 /* Entry Pages */
@@ -191,7 +209,27 @@ a.feed-entry:hover {
 .entry-body h2        { color: var(--text-hi); font-family: var(--font-mono); font-size: 1.1rem; letter-spacing: 0.05em; margin: 2rem 0 1rem; }
 .entry-body em,
 .entry-body strong    { color: var(--text-hi); }
-.entry-body pre       { background: var(--surface); border: 1px solid var(--border); padding: 1rem; font-family: var(--font-mono); font-size: 13px; color: var(--text-mid); overflow-x: auto; margin-bottom: 1.4rem; }
+.entry-body pre       { position: relative; background: var(--surface); border: 1px solid var(--border); padding: 1rem; font-family: var(--font-mono); font-size: 13px; color: var(--text-mid); overflow-x: auto; margin-bottom: 1.4rem; }
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-lo);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+  letter-spacing: 0.04em;
+}
+
+.entry-body pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+.copy-btn.copied { color: var(--accent); border-color: var(--accent); opacity: 1; }
 .entry-body code      { font-family: var(--font-mono); color: var(--accent); font-size: 0.9em; }
 .entry-body img       { max-width: 100%; border: 1px solid var(--border); margin-bottom: 1.4rem; display: block; }
 .entry-body .img-caption { font-size: 15px; color: var(--text-lo); margin-top: -1rem; margin-bottom: 1.4rem; letter-spacing: 0.02em; }

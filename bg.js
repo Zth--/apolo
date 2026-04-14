@@ -22,7 +22,7 @@
   ];
 
   // ON pixel: dim blue
-  var ON_R = 15, ON_G = 40, ON_B = 110;
+  var ON_R = 80, ON_G = 145, ON_B = 255;
   // OFF pixel: site background
   var OFF_R = 2, OFF_G = 8, OFF_B = 16;
 
@@ -62,9 +62,9 @@
                 + Math.sin((nx * 5.5 - ny * 7.1) + t * 0.09) * 0.5;
           w = w * 0.5 + 0.5;
           var warm = w > 0.78;
-          d[i]     = Math.floor((warm ? 155 : ON_R) * vig);
-          d[i + 1] = Math.floor((warm ? 125 : ON_G) * vig);
-          d[i + 2] = Math.floor((warm ?  70 : ON_B) * vig);
+          d[i]     = Math.floor((warm ? 255 : ON_R) * vig);
+          d[i + 1] = Math.floor((warm ? 220 : ON_G) * vig);
+          d[i + 2] = Math.floor((warm ? 155 : ON_B) * vig);
         } else {
           d[i]     = Math.floor(OFF_R * vig);
           d[i + 1] = Math.floor(OFF_G * vig);

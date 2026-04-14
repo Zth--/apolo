@@ -38,8 +38,28 @@ function initTyping() {
   });
 }
 
+function initCopyButtons() {
+  document.querySelectorAll('.entry-body pre').forEach(pre => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'copy';
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(pre.textContent.replace('copy', '').trim()).then(() => {
+        btn.textContent = 'copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    });
+    pre.appendChild(btn);
+  });
+}
+
 function init() {
   initTyping();
+  initCopyButtons();
 }
 
 init();

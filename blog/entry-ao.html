@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>hackeando ao20 :: apolo</title>
-  <meta name="description" content="Cómo hackeé el Argentum Online 20 desde un script de estadísticas">
-  <meta property="og:title" content="hackeando ao20 — apolo">
-  <meta property="og:description" content="Cómo hackeé el Argentum Online 20 desde un script de estadísticas">
+  <meta name="description" content="Es noviembre 2022. El creador del Argentum Online vuelve a la escena para lanzar AO20. Para los que no conozcan el AO, el juego es un MMORPG argentino de fin de">
+  <meta property="og:title" content="Hackeando AO20 — apolo">
+  <meta property="og:description" content="Es noviembre 2022. El creador del Argentum Online vuelve a la escena para lanzar AO20. Para los que no conozcan el AO, el juego es un MMORPG argentino de fin de">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://apolo.systems/blog/entry-ao.html">
   <meta property="og:image" content="https://apolo.systems/og-image.png">
@@ -24,81 +24,76 @@
     </header>
 
     <main class="container">
-      <div class="entry-meta">2026-03-29</div>
+      <div class="entry-meta">29-03-2026</div>
       <h1 class="entry-title">Hackeando AO20</h1>
       <div class="entry-body">
-        <p>Es noviembre 2022. El creador del Argentum Online vuelve a la escena para lanzar AO20. Para los que no conozcan el AO, el juego es un MMORPG de fin de los 90s de mundo abierto donde hay que grindear mucho. Es de código abierto y tanto servidor como cliente están armados en Visual Basic 6. VB6 se deprecó en abril 2008, pero lo siguen usando para este juego al día de hoy.</p>
-        <p>De chico quise hackear este juego pero no lo logré. Tenía muchas ganas pero poco conocimiento técnico. Esta vez fue distinto. Para el fin de este hack pude spwanear una espada test en Ullathorpe (la ciudad principal) y se armó un lindo quilombo en la comunidad.</p>
-        <p>Lo cierto es que no fue un hack justificado, si no simplemente dedicación en encontrar descuidos de los demás.</p>
-
+        <p>Es noviembre 2022. El creador del Argentum Online vuelve a la escena para lanzar AO20. Para los que no conozcan el AO, el juego es un MMORPG argentino de fin de los 90s de mundo abierto donde hay que grindear mucho. Es de código abierto y tanto servidor como cliente están armados en Visual Basic 6. VB6 se deprecó en abril 2008, pero lo siguen usando para este juego al día de hoy.</p>
+        <p>Es un juego muy lindo que nos marcó a muchos pibes. El hecho de ser de código abierto también fue una puerta de entrada para muchos al mundo de la programación y de las computadoras en general. Gente que moddeaba y armaba comunidades</p>
+        <p>Bueno la cuestión es que yo de chico intentaba duplicar items o replicar distintos bugs o hacks para lograr alguna pequeña ventaja sin mucha suerte. Tenía muchas ganas pero pocos resultados. Cuando anunciaron una nueva versión hecha por el creador del juego pensé que sería divertido darla una nueva chance. Para el fin de esta cadena de vulnerabilidades pude spwanear una espada test en Ullathorpe (la ciudad principal) o tomar control de cualquier cuenta.</p>
+        <p>Lo que sigue a continuación es un writeup de cómo fui vulnerando los sistemas de AO20 para spawnear cualquier item que yo quisiese o tomar control de cualquier cuenta. Lo cierto es que no fue un hack avanzado ni sofisticado, recordemos que este tipo de juegos apenas tiene los recursos para mantener los servidores online y hacer algunos desarrollos por contribuciones (salvo algún que otro servidor que hace algo de plata pero no es la regla).</p>
+        <p>Pero sí es una dedicación a encontrar descuidos de los demás.</p>
         <h2>La preparación</h2>
         <p>Al ser un juego de código abierto uno puede buscar vulnerabilidades en el juego mismo, tanto servidor como cliente. Ese fue mi primer intento. El problema es que están escritos en Visual Basic 6. Me pareció poca atractiva la idea de aprender un stack tan viejo que está completamente fuera de uso en el mundo real, así que después de poco tiempo busqué otros caminos.</p>
         <p>Mirando los repos de github de la organización de AO20 me encontré que tenían varios servicios satélites corriendo para distintas funcionalidades de la página web. Uno que captó la atención fue "argentum20-estadisticas".</p>
-
         <h2>argentum20-estadisticas</h2>
         <p>Como su nombre lo indica este repo corre algunos reportes de estadísticas. Está escrito en php. Me llamó la atención <code>reports.php</code> que hacía lo siguiente:</p>
 <pre>&lt;?php
-  include('_reports.php');
-  $directory = '../' . $_GET['dir'];
+  include(&#x27;_reports.php&#x27;);
+  $directory = &#x27;../&#x27; . $_GET[&#x27;dir&#x27;];
 
-  if (isset($_GET['last']) &amp;&amp; $_GET['last'] == 'true') {
+  if (isset($_GET[&#x27;last&#x27;]) &amp;&amp; $_GET[&#x27;last&#x27;] == &#x27;true&#x27;) {
     echo getLastReport($directory);
     die();
   }
-
+  
   foreach (listFolderFiles($directory) as $file) {
-    echo '&lt;a href="' . $file .'"&gt;'. $file .'&lt;/a&gt;&lt;br&gt;';
+    echo &#x27;&lt;a href=&quot;&#x27; . $file .&#x27;&quot;&gt;&#x27;. $file .&#x27;&lt;/a&gt;&lt;br&gt;&#x27;;
   }
 ?&gt;</pre>
-        <p>spot the vuln!!</p>
+        <p>spot the vuln!</p>
         <p>El parámetro <code>dir</code> se concatena directo a la ruta sin sanitizar. Es un simple Path Traversal (LFI).</p>
         <p>El parámetro <code>last=true</code> descargaba el último archivo modificado. Sin este parámetro, el script listaba directorios. Se usó para eludir restricciones y acceder a carpetas internas.</p>
-        <p>Entonces puedo hacer, por ejemplo: <code>GET a https://estadisticas.ao20.com.ar/produccion/reports.php?dir=../backups</code>, que esto me liste los files que hay en backups. Y despues puedo leer el contenido de cualquiera de estos files agregando el queryparam <code>last</code> en true.</p>
+        <p>Entonces puedo hacer, por ejemplo: <code>GET https://estadisticas.ao20.com.ar/produccion/reports.php?dir=../backups</code>, que esto me liste los files que hay en backups. Y despues puedo leer el contenido de cualquiera de estos files agregando el queryparam <code>last</code> en true.</p>
         <p>Con este LFI en mano me puse a revisar todas las carpetas y files que había en este servidor... y así fue como encontré...</p>
-
         <h2>Credenciales FTP expuestas</h2>
         <p>Revisando directorios, llegué a la carpeta de backups. El servidor de estadísticas tenía permisos de lectura sobre carpetas que no debería. Ahí encontré logs de Jenkins y archivos de configuración que tenían credenciales FTP en texto plano:</p>
 <pre>ftp://estadisticas@ao20.com.ar:[REDACTED]@[REDACTED]</pre>
         <p>O sea que ya no necesitaba el LFI para listar carpetas; tenía credenciales ftp. Y además esto me daba permisos de escritura. A esta altura ya podía subir un archivo malicioso php y tomar control del servidor, pero no me interesaba ese camino en particular.</p>
-
         <h2>Backups y Account Takeover</h2>
-        <p>Descubrí que el servidor del juego (SQLite) se backupeaba cada 4 horas en <code>../backup/server-prod-bd</code>. Usando el LFI, bajaba el <code>result.gz</code> y tenía la base de datos completa de los jugadores en mi PC.</p>
-        <p>Acá me quede pensando qué podía hacer con un backup de la base de datos... y tuve una idea.</p>
-        <p>Qué tal si antes de que se escriba el backup yo pido recuperar la contraseña de una cuenta? El token de cambio de clave se tiene que guardar en la db... y yo podría después descargar este backup y usar ese token para cambiar la contraseña de cualquier cuenta.</p>
-        <p>Y eso fue lo que hice. Busqué alguna cuenta de nivel alto que no se usara desde hacía mucho tiempo y pedí prestada su cuenta.</p>
+        <p>Descubrí que el servidor del juego (SQLite) se backupeaba cada 4 horas en <code>../backup/server-prod-bd</code>. Usando el LFI, descargaba el archivo y tenía la base de datos completa de los jugadores en mi PC.</p>
+        <p>Acá me quedé pensando qué podía hacer con un backup de la base de datos... y tuve una idea.</p>
+        <p>Qué tal si antes de que se escriba el backup yo pido recuperar la contraseña de una cuenta? El token de cambio de clave se tiene que guardar en la db... y yo podría después descargar este backup y usar ese token para cambiar la contraseña de cualquier cuenta. Y eso fue lo que hice. Busqué alguna cuenta de nivel alto que no se usara desde hacía mucho tiempo y pedí prestada su cuenta.</p>
         <p>Así que el flujo era:</p>
-<pre>1. Pedir un "Olvidé mi contraseña" en la web para la víctima.
+<pre>1. Pedir un &quot;Olvidé mi contraseña&quot; en la web para la víctima.
 2. Esperar al siguiente cronjob de backup.
 3. Bajar la DB, buscar el token de recuperación recién generado.
 4. Usar ese token en la web y cambiar la clave.</pre>
         <p>Con esto ya podía pedir prestadas cuentas y divertirme un rato, pero... nada más??</p>
-
         <h2>Jenkins</h2>
-        <p>Siguiendo con la exploración de backups, encontré un <code>.zip</code> viejo de una instalación de Jenkins. Adentro estaba el <code>credentials.xml</code> con las llaves SSH de GitHub, pero estaban encriptadas.</p>
+        <p>Creo que estuve trabado en este paso por un par de noches. El ftp estaba repleto de archivos y carpetas. Así que estuve unas cuantas horas revisando todo en búsqueda de algo que me permita seguir avanzando.</p>
+        <p>Siguiendo con la exploración de backups, encontré un <code>.zip</code> viejo de una instalación de Jenkins. Adentro estaba <code>credentials.xml</code> con las llaves SSH de GitHub, pero encriptadas.</p>
         <p>Sin embargo, el mismo <code>.zip</code> tenía la master key del Jenkins. Con la llave maestra y los hashes, pude desencriptar la clave privada de SSH. Con eso cloné todos los repositorios privados de AO20: pymmo, gameapi y el engine. Ahora tenía el mapa completo de cómo funcionaba todo por detrás.</p>
-
         <h2>El fin</h2>
         <p>En el código fuente de gameapi encontré lo que buscaba: las credenciales de la base de datos MySQL de producción (<code>ao20_mercado</code>).</p>
         <p>El sistema de mercado funcionaba con un job que leía una tabla de transacciones. Si insertabas un registro ahí, el juego te daba el item. Armé un script rápido para inyectar la compra:</p>
 <pre>mysql -u root -p[REDACTED] -h [REDACTED] -P 5103 ao20_mercado \
-  -e "insert into mao_item_transaction_status \
+  -e &quot;insert into mao_item_transaction_status \
   (user_id, status, created_at, item_id, item_quantity) \
-  values ('8304', 'CONFIRMED', NOW(), '1745', '1337');"</pre>
+  values (&#x27;8304&#x27;, &#x27;CONFIRMED&#x27;, NOW(), &#x27;1745&#x27;, &#x27;1337&#x27;);&quot;</pre>
         <p>Elegí el ID de la Espada Test (un item que obviamente no se consigue dentro del juego). Un minuto después, el item apareció en mi inventario. Se ejecutaba un DELETE sobre el registro instantes después de que el job del mercado lo procesara para no dejar rastros en el panel.</p>
-        <img src="espada-test-ullathorpe.png" alt="Espada Test en Ullathorpe">
+        <img src="espada-test-ullathorpe.png" alt="la espada test tirada en ullathorpe">
         <p class="img-caption">la espada test tirada en ullathorpe</p>
-        <img src="espada-test-ullathorpe2.png" alt="Log del juego mostrando Espada Test-1">
+        <img src="espada-test-ullathorpe2.png" alt="el log del juego registrando los drops">
         <p class="img-caption">el log del juego registrando los drops</p>
         <p>Y se armó quilombo.</p>
-        <img src="espada-test-ullathorpe3.png" alt="Screenshot en Discord de la espada in-game">
+        <img src="espada-test-ullathorpe3.png" alt="la comunidad descubriendo la espada">
         <p class="img-caption">la comunidad descubriendo la espada</p>
-        <img src="espada-test-discord.png" alt="MuffinPie reportando la espada en Discord">
+        <img src="espada-test-discord.png" alt="el rumor se esparce en discord">
         <p class="img-caption">el rumor se esparce en discord</p>
-
         <h2>Conclusión</h2>
         <p>Le avisé a los devs en privado. Se lo tomaron bien, aunque les costó entender cómo alguien había llegado tan lejos desde un simple script de estadísticas.</p>
-        <img src="espada-discord2.png" alt="Comunicado oficial del staff de AO20">
-        <p class="img-caption">el comunicado oficial — "error humano"</p>
+        <img src="espada-discord2.png" alt="el comunicado oficial — &quot;error humano&quot;">
+        <p class="img-caption">el comunicado oficial — &quot;error humano&quot;</p>
       </div>
     </main>
 
