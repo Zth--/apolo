@@ -8,125 +8,127 @@
   canvas.width = W;
   canvas.height = H;
 
-  var BAYER = [
-     0,32, 8,40, 2,34,10,42,
-    48,16,56,24,50,18,58,26,
-    12,44, 4,36,14,46, 6,38,
-    60,28,52,20,62,30,54,22,
-     3,35,11,43, 1,33, 9,41,
-    51,19,59,27,49,17,57,25,
-    15,47, 7,39,13,45, 5,37,
-    63,31,55,23,61,29,53,21
+  function ign(px, py) {
+    var v = 0.06711056 * px + 0.00583715 * py;
+    return (52.9829189 * (v - Math.floor(v))) % 1;
+  }
+
+  function hash2(ix, iy) {
+    var h = (ix * 374761393 + iy * 668265263) | 0;
+    h = ((h ^ (h >>> 13)) * 1274126177) | 0;
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+  }
+
+  function vnoise(x, y) {
+    var ix = Math.floor(x), iy = Math.floor(y);
+    var fx = x - ix, fy = y - iy;
+    fx = fx * fx * (3 - 2 * fx);
+    fy = fy * fy * (3 - 2 * fy);
+    var a = hash2(ix, iy), b = hash2(ix + 1, iy);
+    var c = hash2(ix, iy + 1), dd = hash2(ix + 1, iy + 1);
+    return a + (b - a) * fx + (c - a) * fy + (a - b - c + dd) * fx * fy;
+  }
+
+  function fbm(x, y) {
+    var val = 0, amp = 0.5, freq = 1;
+    for (var i = 0; i < 4; i++) {
+      val += vnoise(x * freq, y * freq) * amp;
+      amp *= 0.5;
+      freq *= 2.0;
+    }
+    return val;
+  }
+
+  function smoothstep(e0, e1, x) {
+    var v = (x - e0) / (e1 - e0);
+    if (v < 0) v = 0; if (v > 1) v = 1;
+    return v * v * (3 - 2 * v);
+  }
+
+  // Sky gradient stops: [y, offR, offG, offB, onR, onG, onB]
+  var SKY = [
+    [0.00,  4,   6,  18,   25,  35,  90],
+    [0.30,  7,  10,  30,   40,  55, 130],
+    [0.55, 10,  16,  42,   55,  80, 170],
+    [0.80, 14,  22,  52,   65, 105, 195],
+    [1.00, 18,  28,  58,   75, 125, 215]
   ];
 
-  var ON_R = 130, ON_G = 190, ON_B = 255;
-  var OFF_R = 8, OFF_G = 18, OFF_B = 35;
+  function skyColor(yNorm) {
+    var i = 0;
+    while (i < SKY.length - 2 && SKY[i + 1][0] < yNorm) i++;
+    var a = SKY[i], b = SKY[i + 1];
+    var t = (yNorm - a[0]) / (b[0] - a[0]);
+    if (t < 0) t = 0; if (t > 1) t = 1;
+    t = t * t * (3 - 2 * t); // smoothstep
+    return [
+      a[1] + (b[1] - a[1]) * t,
+      a[2] + (b[2] - a[2]) * t,
+      a[3] + (b[3] - a[3]) * t,
+      a[4] + (b[4] - a[4]) * t,
+      a[5] + (b[5] - a[5]) * t,
+      a[6] + (b[6] - a[6]) * t
+    ];
+  }
+
+  // Precompute sky gradient per row
+  var skyRows = new Array(H);
+  for (var row = 0; row < H; row++) {
+    skyRows[row] = skyColor(row / (H - 1));
+  }
 
   var seed = 12345;
   function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; }
 
-  var NUM_STARS = 120;
+  var NUM_STARS = 160;
   var stars = [];
   for (var s = 0; s < NUM_STARS; s++) {
+    var sy = Math.floor(rand() * H * 0.55);
     stars.push({
       x: Math.floor(rand() * W),
-      y: Math.floor(rand() * H),
-      phase: rand() * Math.PI * 2,
-      speed: 0.3 + rand() * 1.5,
-      cross: rand() < 0.18,
-      r: 210 + Math.floor(rand() * 45),
-      g: 220 + Math.floor(rand() * 35),
-      b: 240 + Math.floor(rand() * 15)
+      y: sy,
+      cross: rand() < 0.15,
+      bright: 0.6 + rand() * 0.4,
+      r: 220 + Math.floor(rand() * 35),
+      g: 230 + Math.floor(rand() * 25),
+      b: 245 + Math.floor(rand() * 10)
     });
   }
 
   var img = ctx.createImageData(W, H);
   var d = img.data;
-  var t = 0;
+  var t = 0, frameCount = 0;
 
   function frame() {
     var dx = t * 0.004, dy = t * 0.0025;
     var cdx = t * 0.008, cdy = t * 0.005;
 
+    // stars first — sky and clouds paint over them
     for (var y = 0; y < H; y++) {
+      var sky = skyRows[y];
       for (var x = 0; x < W; x++) {
-        var nx = x / W + dx, ny = y / H + dy;
-
-        var n = Math.sin(nx * 6.3 + t * 0.3) * Math.cos(ny * 4.7 + t * 0.25)
-              + Math.sin((nx * 3.1 + ny * 5.9) - t * 0.2) * 0.6
-              + Math.sin(Math.sqrt((nx - 0.5) * (nx - 0.5) + (ny - 0.5) * (ny - 0.5)) * 9 + t * 0.35) * 0.5;
-        n = n / 2.0 * 0.5 + 0.5;
-        if (n < 0) n = 0; if (n > 1) n = 1;
-
-        var vx = x / W - 0.5, vy = y / H - 0.5;
-        var vig = Math.max(0.5, 1.0 - (vx * vx + vy * vy) * 1.6);
-
-        var cnx = x / W + cdx, cny = y / H + cdy;
-
-        // domain warp for organic distortion
-        var wx = Math.sin(cnx * 3.0 + cny * 2.0 + t * 0.045) * 0.12;
-        var wy = Math.cos(cnx * 2.5 - cny * 2.8 + t * 0.035) * 0.12;
-        var wcx = cnx + wx, wcy = cny + wy;
-
-        var c1 = Math.sin(wcx * 3.2 + t * 0.03) * Math.cos(wcy * 2.6 - t * 0.025) * 0.5 + 0.5;
-        var c2 = Math.sin(wcx * 6.0 + wcy * 5.0 + t * 0.06) * 0.3;
-        var c3 = Math.sin(wcx * 11.0 + t * 0.09) * Math.cos(wcy * 9.5 - t * 0.055) * 0.15;
-
-        var cloud = c1 + c2 + c3;
-        if (cloud < 0) cloud = 0; if (cloud > 1) cloud = 1;
-
-        var thresh = BAYER[(y & 7) * 8 + (x & 7)] / 64.0;
         var i = (y * W + x) * 4;
-
-        var cloudEdge = 0.48;
-        var inCloud = cloud > cloudEdge;
-        var ci = inCloud ? (cloud - cloudEdge) / (1.0 - cloudEdge) : 0;
-
-        var boosted = inCloud ? n + ci * 0.2 : n;
-        var on = boosted > thresh;
-
-        if (inCloud && on) {
-          var intensity = Math.sqrt(ci);
-          d[i]     = Math.floor((ON_R + (240 - ON_R) * intensity) * vig);
-          d[i + 1] = Math.floor((ON_G + (245 - ON_G) * intensity) * vig);
-          d[i + 2] = Math.floor((ON_B + (255 - ON_B) * intensity * 0.3) * vig);
-        } else if (on) {
-          d[i]     = Math.floor(ON_R * vig);
-          d[i + 1] = Math.floor(ON_G * vig);
-          d[i + 2] = Math.floor(ON_B * vig);
-        } else if (inCloud) {
-          var glow = ci * 0.25;
-          d[i]     = Math.floor((OFF_R + 30 * glow) * vig);
-          d[i + 1] = Math.floor((OFF_G + 32 * glow) * vig);
-          d[i + 2] = Math.floor((OFF_B + 35 * glow) * vig);
-        } else {
-          d[i]     = Math.floor(OFF_R * vig);
-          d[i + 1] = Math.floor(OFF_G * vig);
-          d[i + 2] = Math.floor(OFF_B * vig);
-        }
+        d[i]     = Math.floor(sky[0]);
+        d[i + 1] = Math.floor(sky[1]);
+        d[i + 2] = Math.floor(sky[2]);
         d[i + 3] = 255;
       }
     }
 
     for (var s = 0; s < NUM_STARS; s++) {
       var star = stars[s];
-      var twinkle = Math.sin(t * star.speed + star.phase);
-      twinkle = (twinkle + 1) * 0.5;
-      twinkle = twinkle * twinkle;
-      if (twinkle < 0.15) continue;
-
       var sx = star.x, sy = star.y;
-      var svx = sx / W - 0.5, svy = sy / H - 0.5;
-      var svig = Math.max(0.5, 1.0 - (svx * svx + svy * svy) * 1.6);
-      var bright = twinkle * svig;
+      var altFade = 1.0 - sy / (H * 0.55);
+      if (altFade <= 0) continue;
+      var bright = star.bright * altFade;
 
       var si = (sy * W + sx) * 4;
-      d[si]     = Math.min(255, Math.floor(star.r * bright * 1.8));
-      d[si + 1] = Math.min(255, Math.floor(star.g * bright * 1.8));
-      d[si + 2] = Math.min(255, Math.floor(star.b * bright * 1.8));
+      d[si]     = Math.min(255, Math.floor(star.r * bright));
+      d[si + 1] = Math.min(255, Math.floor(star.g * bright));
+      d[si + 2] = Math.min(255, Math.floor(star.b * bright));
 
-      if (star.cross && bright > 0.3) {
-        var armBright = bright * 0.5;
+      if (star.cross) {
+        var armBright = bright * 0.45;
         var arms = [[-1,0],[1,0],[0,-1],[0,1]];
         for (var a = 0; a < 4; a++) {
           var ax = sx + arms[a][0], ay = sy + arms[a][1];
@@ -140,8 +142,78 @@
       }
     }
 
+    // sky + clouds dither over the star field
+    for (var y = 0; y < H; y++) {
+      var yNorm = y / (H - 1);
+      var sky = skyRows[y];
+      var offR = sky[0], offG = sky[1], offB = sky[2];
+      var onR = sky[3], onG = sky[4], onB = sky[5];
+
+      var horizonBoost = 0;
+
+      for (var x = 0; x < W; x++) {
+        var nx = x / W + dx, ny = y / H + dy;
+
+        var n = Math.sin(nx * 6.3 + t * 0.3) * Math.cos(ny * 4.7 + t * 0.25)
+              + Math.sin((nx * 3.1 + ny * 5.9) - t * 0.2) * 0.6
+              + Math.sin(Math.sqrt((nx - 0.5) * (nx - 0.5) + (ny - 0.5) * (ny - 0.5)) * 9 + t * 0.35) * 0.5;
+        n = n / 2.0 * 0.5 + 0.5;
+        if (n < 0) n = 0; if (n > 1) n = 1;
+        n = n * n;
+
+        var cnx = x / W + cdx, cny = y / H + cdy;
+
+        var wx = Math.sin(cnx * 3.0 + cny * 2.0 + t * 0.045) * 0.12;
+        var wy = Math.cos(cnx * 2.5 - cny * 2.8 + t * 0.035) * 0.12;
+
+        var cloud = fbm((cnx + wx) * 3.0, (cny + wy) * 3.0);
+        if (cloud < 0) cloud = 0; if (cloud > 1) cloud = 1;
+
+        var tOff = 5.588238 * (frameCount >> 7);
+
+        var skyTh = ign(x + tOff, y + tOff);
+        skyTh = skyTh < 0.5
+          ? Math.sqrt(0.5 * skyTh)
+          : 1.0 - Math.sqrt(0.5 * (1.0 - skyTh));
+
+        var cloudTh = ign(x + 131 + tOff, y + 97 + tOff);
+        cloudTh = cloudTh < 0.5
+          ? Math.sqrt(0.5 * cloudTh)
+          : 1.0 - Math.sqrt(0.5 * (1.0 - cloudTh));
+
+        var i = (y * W + x) * 4;
+        var cb = smoothstep(0.35, 0.55, cloud);
+        var thresh = skyTh + (cloudTh - skyTh) * cb;
+
+        var boosted = n + horizonBoost + cb * 0.2;
+        var on = boosted > thresh;
+
+        if (on) {
+          var pR = onR, pG = onG, pB = onB;
+          if (cb > 0) {
+            var intensity = Math.sqrt(cb);
+            var cR = onR + (230 - onR) * intensity;
+            var cG = onG + (240 - onG) * intensity;
+            var cB = onB + (255 - onB) * intensity;
+            pR += (cR - pR) * cb;
+            pG += (cG - pG) * cb;
+            pB += (cB - pB) * cb;
+          }
+          d[i]     = Math.min(255, Math.floor(pR));
+          d[i + 1] = Math.min(255, Math.floor(pG));
+          d[i + 2] = Math.min(255, Math.floor(pB));
+        } else if (cb > 0) {
+          var glow = cb * 0.2;
+          d[i]     = Math.floor(offR + (onR - offR) * glow);
+          d[i + 1] = Math.floor(offG + (onG - offG) * glow);
+          d[i + 2] = Math.floor(offB + (onB - offB) * glow);
+        }
+      }
+    }
+
     ctx.putImageData(img, 0, 0);
     t += 0.012;
+    frameCount++;
     requestAnimationFrame(frame);
   }
   frame();
