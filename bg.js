@@ -23,8 +23,8 @@
 
   // ON pixel: dim blue
   var ON_R = 80, ON_G = 145, ON_B = 255;
-  // OFF pixel: site background
-  var OFF_R = 2, OFF_G = 8, OFF_B = 16;
+  // OFF pixel: site background (lightened per feedback)
+  var OFF_R = 10, OFF_G = 20, OFF_B = 37;
 
   // Beige cross stars — + shape, warm color, slow twinkle
   var seed = 12345;
@@ -49,9 +49,9 @@
         n = n / 2.0 * 0.5 + 0.5;
         n = n < 0 ? 0 : n > 1 ? 1 : n;
 
-        // vignette
+        // vignette (softened to prevent overly dark edges)
         var vx = x / W - 0.5, vy = y / H - 0.5;
-        var vig = Math.max(0.45, 1.0 - (vx * vx + vy * vy) * 1.6);
+        var vig = Math.max(0.62, 1.0 - (vx * vx + vy * vy) * 1.35);
 
         var thresh = BAYER[(y & 7) * 8 + (x & 7)] / 64.0;
         var on = n > thresh;

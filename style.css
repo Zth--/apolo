@@ -7,14 +7,14 @@
 }
 
 :root {
-  --bg:             #020810;
-  --surface:        #03070f;
-  --border:         #0d1f3c;
+  --bg:             #0a1425;
+  --surface:        #13223a;
+  --border:         #1e3a5c;
   --accent:         #4a9eff;
   --text-hi:        #e8f0ff;
   --text-mid:       #8aa8cc;
   --text-body:      #b8d0e8;
-  --text-lo:        #2a5a8a;
+  --text-lo:        #7499ba;
 
   --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -29,7 +29,7 @@
   height: 100vh;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  opacity: 0.15;
+  opacity: 0.28;
   z-index: 0;
   pointer-events: none;
 }
@@ -69,6 +69,7 @@ html, body {
   color: var(--text-lo);
   text-decoration: none;
   transition: color 0.2s;
+  text-shadow: 0 0 10px var(--bg), 0 0 20px var(--bg);
 }
 .sys-back:hover { color: var(--accent); }
 
@@ -109,6 +110,7 @@ html, body {
   font-size: 16px;
   color: var(--text-lo);
   letter-spacing: 0.04em;
+  text-shadow: 0 0 10px var(--bg), 0 0 20px var(--bg);
 }
 
 .hero-link {
@@ -117,6 +119,7 @@ html, body {
   letter-spacing: 0.04em;
   text-decoration: none;
   transition: color 0.2s;
+  text-shadow: 0 0 10px var(--bg), 0 0 20px var(--bg);
 }
 .hero-link:hover { color: var(--accent); }
 
@@ -165,6 +168,7 @@ a.feed-entry:hover {
   font-size: 15px;
   color: var(--text-lo);
   letter-spacing: 0.02em;
+  text-shadow: 0 0 10px var(--bg), 0 0 20px var(--bg);
 }
 
 .feed-arrow {
@@ -185,6 +189,7 @@ a.feed-entry:hover .feed-arrow {
   color: var(--text-lo);
   letter-spacing: 0.05em;
   margin-bottom: 14px;
+  text-shadow: 0 0 10px var(--bg), 0 0 20px var(--bg);
 }
 
 .entry-title {
@@ -232,7 +237,7 @@ a.feed-entry:hover .feed-arrow {
 .copy-btn.copied { color: var(--accent); border-color: var(--accent); opacity: 1; }
 .entry-body code      { font-family: var(--font-mono); color: var(--accent); font-size: 0.9em; }
 .entry-body img       { max-width: 100%; border: 1px solid var(--border); margin-bottom: 1.4rem; display: block; }
-.entry-body .img-caption { font-size: 15px; color: var(--text-lo); margin-top: -1rem; margin-bottom: 1.4rem; letter-spacing: 0.02em; }
+.entry-body .img-caption { font-size: 15px; color: var(--text-lo); margin-top: -1rem; margin-bottom: 1.4rem; letter-spacing: 0.02em; text-shadow: 0 0 10px var(--bg), 0 0 20px var(--bg); }
 
 /* Entry Nav */
 .entry-nav {
@@ -250,6 +255,7 @@ a.feed-entry:hover .feed-arrow {
   color: var(--text-lo);
   text-decoration: none;
   transition: color 0.2s;
+  text-shadow: 0 0 10px var(--bg), 0 0 20px var(--bg);
 }
 
 .entry-nav a:hover {
