@@ -29,7 +29,7 @@
   height: 100vh;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  opacity: 0.28;
+  opacity: 0.48;
   z-index: 0;
   pointer-events: none;
 }
@@ -52,6 +52,7 @@ html, body {
   flex-direction: column;
   position: relative;
   z-index: 1;
+  background: rgba(10, 20, 37, 0.55);
 }
 
 /* System Header (entry pages only) */
@@ -137,6 +138,7 @@ html, body {
   padding: 18px 20px;
   text-decoration: none;
   color: inherit;
+  background: rgba(10, 20, 37, 0.45);
   border: 1px solid var(--border);
   border-radius: 4px;
   transition: border-color 0.2s, background 0.2s, transform 0.15s;
@@ -280,6 +282,7 @@ a.feed-entry:hover .feed-arrow {
   50%       { opacity: 0; }
 }
 
+.type-me { visibility: hidden; }
 .hidden-text { visibility: hidden; }
 
 .fade-in {

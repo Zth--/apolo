@@ -3,6 +3,7 @@ function hyperText(element, text, duration = 800, onComplete) {
   let iterations = 0;
 
   element.classList.remove('hidden-text');
+  element.style.visibility = 'visible';
 
   const interval = setInterval(() => {
     if (iterations < text.length) {
@@ -150,4 +151,4 @@ function init() {
   initCopyButtons();
 }
 
-init();
+document.fonts.ready.then(init);
