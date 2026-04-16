@@ -127,59 +127,99 @@ html, body {
 .feed {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .feed-entry {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 18px 20px;
+  gap: 24px;
+  padding: 22px 24px;
   text-decoration: none;
   color: inherit;
-  background: rgba(10, 20, 37, 0.75);
+  background: rgba(10, 20, 37, 0.65);
   border: 1px solid var(--border);
+  border-left: 2px solid var(--border);
   border-radius: 4px;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  transition: border-color 0.3s, border-left-color 0.3s,
+              background 0.3s, box-shadow 0.4s;
   cursor: pointer;
 }
 
 a.feed-entry:hover {
-  border-color: var(--accent);
+  border-color: rgba(74, 158, 255, 0.3);
+  border-left-color: var(--accent);
+  background: rgba(19, 34, 58, 0.85);
+  box-shadow: 0 0 20px rgba(74, 158, 255, 0.06),
+              inset 0 0 30px rgba(74, 158, 255, 0.03);
 }
 
-.feed-content { flex: 1; }
+.feed-content { flex: 1; min-width: 0; }
+
+.feed-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
 
 .feed-title {
+  color: var(--text-hi);
+  font-size: 21px;
+  letter-spacing: -0.01em;
+  transition: color 0.3s;
+}
+
+a.feed-entry:hover .feed-title {
   color: var(--accent);
-  font-size: 20px;
-  letter-spacing: 0;
-  margin-bottom: 6px;
+}
+
+.feed-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border: 1px solid rgba(74, 158, 255, 0.25);
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0.7;
+  transition: opacity 0.3s, border-color 0.3s;
+}
+
+a.feed-entry:hover .feed-tag {
+  opacity: 1;
+  border-color: rgba(74, 158, 255, 0.5);
 }
 
 .feed-desc {
   color: var(--text-mid);
-  font-size: 18px;
-  margin-bottom: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 10px;
 }
 
 .feed-date {
-  font-size: 15px;
+  font-family: var(--font-mono);
+  font-size: 13px;
   color: var(--text-lo);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   text-shadow: 0 0 10px var(--bg), 0 0 20px var(--bg);
 }
 
 .feed-arrow {
   color: var(--text-lo);
-  font-size: 18px;
-  transition: color 0.2s, transform 0.2s;
+  font-size: 20px;
+  transition: color 0.3s, transform 0.3s;
   flex-shrink: 0;
+  opacity: 0.5;
 }
 
 a.feed-entry:hover .feed-arrow {
   color: var(--accent);
-  transform: translateX(3px);
+  transform: translateX(4px);
+  opacity: 1;
 }
 
 /* Entry Pages */
@@ -294,6 +334,7 @@ a.feed-entry:hover .feed-arrow {
 .entry-meta,
 .feed-title,
 .feed-desc,
+.feed-tag,
 .entry-body p:not(.img-caption),
 .entry-body h2 {
   visibility: hidden;

@@ -84,19 +84,23 @@ function scrambleIn(element, options = {}) {
 
 function initScrambleIn() {
   document.querySelectorAll('.entry-title').forEach(el => {
-    scrambleIn(el, { scrambleSpeed: 30, scrambledLetterCount: 4, step: 2, delay: 100 });
+    scrambleIn(el, { scrambleSpeed: 16, scrambledLetterCount: 5, step: 4, delay: 60 });
   });
 
   document.querySelectorAll('.entry-meta').forEach(el => {
-    scrambleIn(el, { scrambleSpeed: 12, scrambledLetterCount: 5, step: 2, delay: 50 });
+    scrambleIn(el, { scrambleSpeed: 8, scrambledLetterCount: 6, step: 4, delay: 30 });
   });
 
   document.querySelectorAll('.feed-title').forEach((el, i) => {
-    scrambleIn(el, { scrambleSpeed: 12, scrambledLetterCount: 5, step: 2, delay: 250 + i * 40 });
+    scrambleIn(el, { scrambleSpeed: 8, scrambledLetterCount: 6, step: 4, delay: 120 + i * 20 });
+  });
+
+  document.querySelectorAll('.feed-tag').forEach((el, i) => {
+    scrambleIn(el, { scrambleSpeed: 6, scrambledLetterCount: 4, step: 3, delay: 130 + i * 20 });
   });
 
   document.querySelectorAll('.feed-desc').forEach((el, i) => {
-    scrambleIn(el, { scrambleSpeed: 10, scrambledLetterCount: 6, step: 2, delay: 280 + i * 40 });
+    scrambleIn(el, { scrambleSpeed: 6, scrambledLetterCount: 8, step: 4, delay: 160 + i * 20 });
   });
 
   const bodyEls = document.querySelectorAll('.entry-body p:not(.img-caption), .entry-body h2');
@@ -109,13 +113,13 @@ function initScrambleIn() {
 
     visible.forEach((entry, i) => {
       observer.unobserve(entry.target);
-      const stagger = i * 60;
-      entry.target.style.transition = 'opacity 0.3s ease';
+      const stagger = i * 30;
+      entry.target.style.transition = 'opacity 0.2s ease';
       entry.target.style.opacity = '1';
       scrambleIn(entry.target, {
-        scrambleSpeed: 14,
-        scrambledLetterCount: 6,
-        step: 3,
+        scrambleSpeed: 8,
+        scrambledLetterCount: 8,
+        step: 5,
         delay: stagger,
       });
     });
