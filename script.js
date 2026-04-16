@@ -55,6 +55,7 @@ function scrambleIn(element, options = {}) {
   let interval = null;
 
   element.textContent = '\u00A0';
+  element.style.visibility = 'visible';
 
   function tick() {
     if (revealedCount >= text.length) {
@@ -83,19 +84,19 @@ function scrambleIn(element, options = {}) {
 
 function initScrambleIn() {
   document.querySelectorAll('.entry-title').forEach(el => {
-    scrambleIn(el, { scrambleSpeed: 70, scrambledLetterCount: 3, step: 1, delay: 200 });
+    scrambleIn(el, { scrambleSpeed: 30, scrambledLetterCount: 4, step: 2, delay: 100 });
   });
 
   document.querySelectorAll('.entry-meta').forEach(el => {
-    scrambleIn(el, { scrambleSpeed: 20, scrambledLetterCount: 4, delay: 100 });
+    scrambleIn(el, { scrambleSpeed: 12, scrambledLetterCount: 5, step: 2, delay: 50 });
   });
 
   document.querySelectorAll('.feed-title').forEach((el, i) => {
-    scrambleIn(el, { scrambleSpeed: 20, scrambledLetterCount: 4, delay: 500 + i * 80 });
+    scrambleIn(el, { scrambleSpeed: 12, scrambledLetterCount: 5, step: 2, delay: 250 + i * 40 });
   });
 
   document.querySelectorAll('.feed-desc').forEach((el, i) => {
-    scrambleIn(el, { scrambleSpeed: 15, scrambledLetterCount: 6, delay: 560 + i * 80 });
+    scrambleIn(el, { scrambleSpeed: 10, scrambledLetterCount: 6, step: 2, delay: 280 + i * 40 });
   });
 
   const bodyEls = document.querySelectorAll('.entry-body p:not(.img-caption), .entry-body h2');
@@ -108,13 +109,13 @@ function initScrambleIn() {
 
     visible.forEach((entry, i) => {
       observer.unobserve(entry.target);
-      const stagger = i * 120;
+      const stagger = i * 60;
       entry.target.style.transition = 'opacity 0.3s ease';
       entry.target.style.opacity = '1';
       scrambleIn(entry.target, {
-        scrambleSpeed: 25,
-        scrambledLetterCount: 5,
-        step: 2,
+        scrambleSpeed: 14,
+        scrambledLetterCount: 6,
+        step: 3,
         delay: stagger,
       });
     });

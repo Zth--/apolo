@@ -146,8 +146,6 @@ html, body {
 
 a.feed-entry:hover {
   border-color: var(--accent);
-  background: rgba(74, 158, 255, 0.05);
-  transform: translateX(3px);
 }
 
 .feed-content { flex: 1; }
@@ -291,6 +289,15 @@ a.feed-entry:hover .feed-arrow {
 
 .type-me { visibility: hidden; }
 .hidden-text { visibility: hidden; }
+
+.entry-title,
+.entry-meta,
+.feed-title,
+.feed-desc,
+.entry-body p:not(.img-caption),
+.entry-body h2 {
+  visibility: hidden;
+}
 
 .fade-in {
   animation: fadeIn 1s ease-out forwards;
